@@ -1,11 +1,20 @@
 <?php
 // Include config
-if(!file_exists("config.inc.php")) {
-    die("Mailing config not exists");
+if(!file_exists("mc.config.php")) {
+    if(file_exists("../mc.config.php")) {
+        require("../mc.config.php");
+    }
+    else {
+        die("Mailing config not exists");
+    }
 }
 else {
-    require("config.inc.php");
+    require("mc.config.php");
 }
+
+// Constants
+define("MAILING_CORE_TEMPLATE_PATH", dirname(__FILE__).MAILING_CORE_TEMPLATE_FOLDER);
+
 require("Classes/Sendgrid.php");
 
 class MailingCore {
