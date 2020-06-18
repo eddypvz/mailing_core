@@ -48,21 +48,23 @@ class MailingCore {
 
     public function LoadTemplate($templateName, $data = []) {
 
-        // Default replaced vars
-        $reservedVars = [
-            "TPL_URL" => $this->template_uri."/".$templateName
-        ];
-
-        // Vars to replace
-        $vars = array_merge($reservedVars, $data);
-
         $tplFile = $this->ValidateTemplate($templateName);
         if (!file_exists($tplFile)) {
+            $templateName = "default";
             $tplFile = $this->ValidateTemplate("default");
         }
 
         // If has a template
         if ($tplFile) {
+
+            // Default replaced vars
+            $reservedVars = [
+                "TPL_URL" => $this->template_uri."/".$templateName
+            ];
+
+            // Vars to replace
+            $vars = array_merge($reservedVars, $data);
+
             $tplTemp = file_get_contents($tplFile);
             foreach ($vars as $keyVar => $valueVar) {
                 $tplTemp = str_replace("::{$keyVar}::", $valueVar, $tplTemp);
