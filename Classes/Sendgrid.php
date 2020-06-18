@@ -32,7 +32,7 @@ class SendgridAPI {
                 $email->addCc($emailItem);
             }
         }
-        if ($cc !== "") {
+        if ($bcc !== "") {
             $bccArray = explode(",", $bcc);
             foreach ($bccArray as $emailItem) {
                 $email->addBcc($emailItem);
