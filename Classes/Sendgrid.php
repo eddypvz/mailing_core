@@ -3,6 +3,12 @@ require("Vendor/sendgrid-php/sendgrid-php.php");
 
 class SendgridAPI {
 
+    private $api_key;
+
+    function __construct($api_key) {
+        $this->api_key = $api_key;
+    }
+
     public function send($mailTo = null, $mailToName = null, $from = null, $fromName = null, $subject = null, $content = "", $cc = "") {
 
         $arrStatus = [];
@@ -17,7 +23,7 @@ class SendgridAPI {
             "text/html", $content
         );
 
-        $sendgrid = new \SendGrid(MAILING_CORE["sendgrid"]["api_key"]);
+        $sendgrid = new \SendGrid($this->api_key);
         try {
             $response = $sendgrid->send($email);
             $statusCode = $response->statusCode();

@@ -1,26 +1,43 @@
 <?php
-// Include config
-if(!file_exists("mc.config.php")) {
-    if(file_exists("../mc.config.php")) {
-        require("../mc.config.php");
-    }
-    else {
-        die("Mailing config not exists");
-    }
-}
-else {
-    require("mc.config.php");
-}
-
-// Constants
-define("MAILING_CORE_TEMPLATE_PATH", dirname(__FILE__).MAILING_CORE_TEMPLATE_FOLDER);
-
+require("Tools/Debug.php");
 require("Classes/Sendgrid.php");
 
 class MailingCore {
 
-    static function ValidateTemplate($templateName) {
-        $tplFile = MAILING_CORE_TEMPLATE_PATH."/".$templateName."/tpl.php";
+    private static $instance = null;
+    private $config;
+    private $template_path;
+    private $template_uri;
+
+    private function __construct() {
+        $this->config = [];
+    }
+
+    public static function getInstance() {
+        if (self::$instance == null)
+        {
+            self::$instance = new MailingCore();
+        }
+
+        return self::$instance;
+    }
+
+    public function SetDefaultMailCore($mailcore) {
+        $this->config["default_core"] = $mailcore;
+    }
+
+    public function SetTemplateConfigs($templatePath, $templateUrl) {
+        $this->template_path = $templatePath;
+        $this->template_uri = $templateUrl;
+    }
+
+    public function EnableSendgrid($api_key) {
+        $this->config["sendgrid"] = [];
+        $this->config["sendgrid"]["api_key"] = $api_key;
+    }
+
+    public function ValidateTemplate($templateName) {
+        $tplFile = $this->template_path."/".$templateName."/tpl.php";
         if (file_exists($tplFile)) {
             return $tplFile;
         }
@@ -29,19 +46,19 @@ class MailingCore {
         }
     }
 
-    static function LoadTemplate($templateName, $data = []) {
+    public function LoadTemplate($templateName, $data = []) {
 
         // Default replaced vars
         $reservedVars = [
-            "TPL_URL" => str_replace("\\",'/',"http://".$_SERVER['HTTP_HOST'].substr(getcwd(),strlen($_SERVER['DOCUMENT_ROOT']))).MAILING_CORE_TEMPLATE_FOLDER."/".$templateName
+            "TPL_URL" => $this->template_uri."/".$templateName
         ];
 
         // Vars to replace
         $vars = array_merge($reservedVars, $data);
 
-        $tplFile = MailingCore::ValidateTemplate($templateName);
+        $tplFile = $this->ValidateTemplate($templateName);
         if (!file_exists($tplFile)) {
-            $tplFile = MailingCore::ValidateTemplate("default");
+            $tplFile = $this->ValidateTemplate("default");
         }
 
         // If has a template
@@ -57,7 +74,7 @@ class MailingCore {
         }
     }
 
-    static function SendMail($mailTo, $from, $subject, $content = "", $cc = "", $mailClient = "") {
+    public function SendMail($mailTo, $from, $subject, $content = "", $cc = "", $mailClient = "") {
 
         // Vars
         $mailTo = (is_array($mailTo)) ? $mailTo[0] : $mailTo;
@@ -69,14 +86,19 @@ class MailingCore {
         $arrStatus["status"] = 0;
         $arrStatus["msg"] = 0;
 
-        if (MAILING_CORE["default_client"] === "sendgrid" || $mailClient === "sendgrid") {
-            $sendgrid = new SendgridAPI();
-            $arrStatus = $sendgrid->send($mailTo, $mailToName, $from, $fromName, $subject, $content, $cc);
+        if ($this->config["default_core"] === "sendgrid" || $mailClient === "sendgrid") {
+            if(isset($this->config["sendgrid"]["api_key"])) {
+                $sendgrid = new SendgridAPI($this->config["sendgrid"]["api_key"]);
+                $arrStatus = $sendgrid->send($mailTo, $mailToName, $from, $fromName, $subject, $content, $cc);
+            }
+            else {
+                $arrStatus["msg"] = "Sendgrid is not enabled";
+            }
         }
-        else if (MAILING_CORE["default_client"] === "mailgun" || $mailClient === "mailgun") {
+        else if ($this->config["default_core"] === "mailgun" || $mailClient === "mailgun") {
             // Mailgun integration here
         }
-        else if (MAILING_CORE["default_client"] === "phpmail" || $mailClient === "phpmail") {
+        else if ($this->config["default_core"] === "phpmail" || $mailClient === "phpmail") {
             // PHP integration here
         }
         else{
