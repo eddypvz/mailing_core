@@ -23,14 +23,20 @@ class SendgridAPI {
             "text/html", $content
         );
 
-        $ccArray = explode(",", $cc);
-        $bccArray = explode(",", $bcc);
+        $cc = trim($cc);
+        $bcc = trim($bcc);
 
-        foreach ($ccArray as $emailItem) {
-            $email->addCc($emailItem);
+        if ($cc !== "") {
+            $ccArray = explode(",", $cc);
+            foreach ($ccArray as $emailItem) {
+                $email->addCc($emailItem);
+            }
         }
-        foreach ($bccArray as $emailItem) {
-            $email->addBcc($emailItem);
+        if ($cc !== "") {
+            $bccArray = explode(",", $bcc);
+            foreach ($bccArray as $emailItem) {
+                $email->addBcc($emailItem);
+            }
         }
 
         $sendgrid = new \SendGrid($this->api_key);
