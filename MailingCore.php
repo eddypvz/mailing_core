@@ -10,8 +10,42 @@ require("Classes/Sendgrid.php");
 
 class MailingCore {
 
-    static function LoadTemplate() {
+    static function ValidateTemplate($templateName) {
+        $tplFile = MAILING_CORE_TEMPLATE_PATH."/".$templateName."/tpl.php";
+        if (file_exists($tplFile)) {
+            return $tplFile;
+        }
+        else {
+            return false;
+        }
+    }
 
+    static function LoadTemplate($templateName, $data = []) {
+
+        // Default replaced vars
+        $reservedVars = [
+            "TPL_URL" => str_replace("\\",'/',"http://".$_SERVER['HTTP_HOST'].substr(getcwd(),strlen($_SERVER['DOCUMENT_ROOT']))).MAILING_CORE_TEMPLATE_FOLDER."/".$templateName
+        ];
+
+        // Vars to replace
+        $vars = array_merge($reservedVars, $data);
+
+        $tplFile = MailingCore::ValidateTemplate($templateName);
+        if (!file_exists($tplFile)) {
+            $tplFile = MailingCore::ValidateTemplate("default");
+        }
+
+        // If has a template
+        if ($tplFile) {
+            $tplTemp = file_get_contents($tplFile);
+            foreach ($vars as $keyVar => $valueVar) {
+                $tplTemp = str_replace("::{$keyVar}::", $valueVar, $tplTemp);
+            }
+            return $tplTemp;
+        }
+        else{
+            return false;
+        }
     }
 
     static function SendMail($mailTo, $from, $subject, $content = "", $cc = "", $mailClient = "") {

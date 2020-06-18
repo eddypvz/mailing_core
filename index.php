@@ -2,5 +2,11 @@
 require ("MailingCore.php");
 
 //DEMO
-/*$emailSended = MailingCore::SendMail("emailto@gmail.com", "noreply@yourdomain", "Subject for mail", "Content of email");
-dd($emailSended);*/
+
+/*
+$template = MailingCore::LoadTemplate("default", [
+    "IMG_BANNER" => "img/banner.jpg"
+]);
+$emailSended = MailingCore::SendMail("emailto@gmail.com", "noreply@yourdomain", "Subject for mail", "Content of email");
+dd($emailSended);
+*/
