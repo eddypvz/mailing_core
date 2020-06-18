@@ -1,5 +1,5 @@
 <?php
-require("Vendor/sendgrid-php/sendgrid-php.php");
+require(dirname(__FILE__)."/../Vendor/sendgrid-php/sendgrid-php.php");
 
 class SendgridAPI {
 
