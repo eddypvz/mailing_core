@@ -9,7 +9,7 @@ class SendgridAPI {
         $this->api_key = $api_key;
     }
 
-    public function send($mailTo = null, $mailToName = null, $from = null, $fromName = null, $subject = null, $content = "", $cc = "") {
+    public function send($mailTo = null, $mailToName = null, $from = null, $fromName = null, $subject = null, $content = "", $cc = "", $bcc = "") {
 
         $arrStatus = [];
         $arrStatus["status"] = 0;
@@ -22,6 +22,16 @@ class SendgridAPI {
         $email->addContent(
             "text/html", $content
         );
+
+        $ccArray = explode(",", $cc);
+        $bccArray = explode(",", $bcc);
+
+        foreach ($ccArray as $emailItem) {
+            $email->addCc($emailItem);
+        }
+        foreach ($bccArray as $emailItem) {
+            $email->addBcc($emailItem);
+        }
 
         $sendgrid = new \SendGrid($this->api_key);
         try {

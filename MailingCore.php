@@ -76,7 +76,7 @@ class MailingCore {
         }
     }
 
-    public function SendMail($mailTo, $from, $subject, $content = "", $cc = "", $mailClient = "") {
+    public function SendMail($mailTo, $from, $subject, $content = "", $cc = "", $bcc = "", $mailClient = "") {
 
         // Vars
         $mailTo = (is_array($mailTo)) ? $mailTo[0] : $mailTo;
@@ -91,7 +91,7 @@ class MailingCore {
         if ($this->config["default_core"] === "sendgrid" || $mailClient === "sendgrid") {
             if(isset($this->config["sendgrid"]["api_key"])) {
                 $sendgrid = new SendgridAPI($this->config["sendgrid"]["api_key"]);
-                $arrStatus = $sendgrid->send($mailTo, $mailToName, $from, $fromName, $subject, $content, $cc);
+                $arrStatus = $sendgrid->send($mailTo, $mailToName, $from, $fromName, $subject, $content, $cc, $bcc);
             }
             else {
                 $arrStatus["msg"] = "Sendgrid is not enabled";
