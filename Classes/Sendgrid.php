@@ -29,13 +29,19 @@ class SendgridAPI {
         if ($cc !== "") {
             $ccArray = explode(",", $cc);
             foreach ($ccArray as $emailItem) {
-                $email->addCc($emailItem);
+                $emailItem = trim($emailItem);
+                if ($emailItem !== "") {
+                    $email->addCc($emailItem);
+                }
             }
         }
         if ($bcc !== "") {
             $bccArray = explode(",", $bcc);
             foreach ($bccArray as $emailItem) {
-                $email->addBcc($emailItem);
+                $emailItem = trim($emailItem);
+                if ($emailItem !== "") {
+                    $email->addBcc($emailItem);
+                }
             }
         }
 
