@@ -1,6 +1,7 @@
 <?php
 require("Tools/Debug.php");
 require("Classes/Sendgrid.php");
+require("Classes/PhpMail.php");
 
 class MailingCore {
 
@@ -102,6 +103,8 @@ class MailingCore {
         }
         else if ($this->config["default_core"] === "phpmail" || $mailClient === "phpmail") {
             // PHP integration here
+            $phpMail = new PhpMail();
+            $arrStatus = $phpMail->send($mailTo, $from, $subject, $content, $cc, $bcc);
         }
         else{
             $arrStatus["msg"] = "Mail client is not defined";
