@@ -1,6 +1,7 @@
 <?php
 require("Tools/Debug.php");
 require("Classes/Sendgrid.php");
+require("Classes/Mailgun.php");
 require("Classes/PhpMail.php");
 
 class MailingCore {
@@ -35,6 +36,12 @@ class MailingCore {
     public function EnableSendgrid($api_key) {
         $this->config["sendgrid"] = [];
         $this->config["sendgrid"]["api_key"] = $api_key;
+    }
+
+    public function EnableMailgun($api_key, $defaultDomain = "") {
+        $this->config["mailgun"] = [];
+        $this->config["mailgun"]["api_key"] = $api_key;
+        $this->config["mailgun"]["default_domain"] = $defaultDomain;
     }
 
     public function ValidateTemplate($templateName) {
@@ -99,7 +106,13 @@ class MailingCore {
             }
         }
         else if ($this->config["default_core"] === "mailgun" || $mailClient === "mailgun") {
-            // Mailgun integration here
+            if(isset($this->config["mailgun"]["api_key"])) {
+                $mailgun = new MailgunAPI($this->config["mailgun"]["api_key"], $this->config["mailgun"]["default_domain"]);
+                $arrStatus = $mailgun->send($from, $mailTo, $subject, $content, $cc, $bcc, false);
+            }
+            else {
+                $arrStatus["msg"] = "Mailgun is not enabled";
+            }
         }
         else if ($this->config["default_core"] === "phpmail" || $mailClient === "phpmail") {
             // PHP integration here
