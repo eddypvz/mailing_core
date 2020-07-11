@@ -38,12 +38,18 @@ class MailgunAPI {
             $postFields = array(
                 'from' => $from . '@' . $domainSend,
                 'to' => $to,
-                'cc' => $cc,
-                'bcc' => $bcc,
                 'subject' => $subject,
                 'html' => $mail_content,
                 'text' => $plain,
             );
+
+            if ($cc !== "") {
+                $postFields['cc'] = $cc;
+            }
+            if ($bcc !== "") {
+                $postFields['bcc'] = $bcc;
+            }
+
             if(empty($cc)){
                 if(isset($postFields['cc'])){
                     unset($postFields['cc']);
